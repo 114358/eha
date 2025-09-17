@@ -20,7 +20,7 @@ const val tag = "rosette-utils"
 fun ensureModel(
     cacheDir: File,
     model: ModelInfo,
-    force: Boolean = true,
+    force: Boolean = false,
 ): File {
 
     val suffix = model.url.substringAfterLast('.', "")
