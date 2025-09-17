@@ -114,16 +114,13 @@ class MainScreenViewModel(
         Thread {
             try {
                 asrService?.stop()
-                Log.i(tag, "1")
                 val modelDir = ensureModel(application.cacheDir, language.model)
                 modelDir.listFiles()?.forEach {
                     Log.i(tag, "Model contents: ${it.name}")
                 }
                 Log.i(tag, "$modelDir")
                 asrModel = Model(modelDir.absolutePath)
-                Log.i(tag, "3")
                 val recognizer = Recognizer(asrModel, 16_000f)
-                Log.i(tag, "4")
                 asrService = SpeechService(recognizer, 16_000f)
                 Log.i(tag, "set ASR to ${language.label} (model=${language.model.fileName})")
             } catch (e: IOException) {
