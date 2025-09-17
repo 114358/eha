@@ -1,5 +1,9 @@
 package com.r114358.rosette
 
+import android.util.Log
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -33,6 +36,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.r114358.rosette.traductor.Traductor
 
 
 @Composable
@@ -134,7 +138,21 @@ fun Item(viewModel: MainScreenViewModel, modifier: Modifier = Modifier, title: S
 
 @Composable
 fun MainScreen(doctorVM: MainScreenViewModel, patientVM: MainScreenViewModel) {
+    val context = LocalContext.current
 
+    // 1) Load the LLM once when this screen appears
+    var llmReady by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        try {
+            withContext(Dispatchers.IO) {
+                Traductor.ensureLoaded(context)
+            }
+            llmReady = true
+            Log.d("rosette-main", "LLM loaded")
+        } catch (t: Throwable) {
+            Log.e("rosette-main", "Failed to load LLM", t)
+        }
+    }
 
     val doctorLang  by doctorVM.asrLang.collectAsState()
     LaunchedEffect(doctorLang)  { patientVM.setTTS(doctorLang) }
