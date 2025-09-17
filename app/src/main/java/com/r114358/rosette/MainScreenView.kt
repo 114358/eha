@@ -124,7 +124,7 @@ class MainScreenViewModel(
                 asrService = SpeechService(recognizer, 16_000f)
                 Log.i(tag, "set ASR to ${language.label} (model=${language.model.fileName})")
             } catch (e: IOException) {
-                Log.e(tag, e.toString())
+                Log.e(tag, "Fail to launch ASR : " + e.toString())
                 transcript.value = "Model switch failed"
             }
         }.start()
