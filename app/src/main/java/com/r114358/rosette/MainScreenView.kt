@@ -106,7 +106,6 @@ class MainScreenViewModel(
 
     init {
         setASR(_asrLang.value)
-        setTTS(_ttsLang.value)
     }
 
     fun setASR(language: Language) {
