@@ -44,7 +44,7 @@ import com.r114358.rosette.traductor.Traductor
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun Item(viewModel: MainScreenViewModel, modifier: Modifier = Modifier, title: String) {
-    val transcript by viewModel.transcript
+    val transcript by viewModel.partial_transcript
     val translated by viewModel.translated
     val selectedLanguage = viewModel.asrLang
     var expanded: Boolean by remember { mutableStateOf(false) }

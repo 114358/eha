@@ -92,6 +92,7 @@ class MainScreenViewModel(
         private set
     private val _asrLang = MutableStateFlow(asrLanguage)
     var asrLang: StateFlow<Language> = _asrLang.asStateFlow()
+    val partial_transcript = mutableStateOf("")
     val transcript = mutableStateOf("")
 
     private var ttsService: TextToSpeech? = null
@@ -175,15 +176,15 @@ class MainScreenViewModel(
     override fun onPartialResult(hypothesis: String?) {
         hypothesis?.let {
             val text = JSONObject(it).optString("partial")
-            transcript.value = text
+            partial_transcript.value = text
         }
     }
 
     override fun onResult(hypothesis: String?) {
-        Log.i(tag, "DONE")
         hypothesis?.let {
             val text = JSONObject(it).optString("text")
-            if (text.isNotBlank()) transcript.value = text
+            Log.i(tag, "DONE '${text}")
+            if (text.isNotBlank()) transcript.value += ". " + partial_transcript.value
         }
     }
 
@@ -191,12 +192,19 @@ class MainScreenViewModel(
         scope.launch {
             Log.i(tag, "launch llm")
 
+            var text = transcript.value
+            if (text.isBlank()) {
+                text = partial_transcript.value
+            }
+
             translated.value = Traductor.translate(
                 application,
-                transcript.value,
+                text,
                 _asrLang.value,
                 _ttsLang.value
             )
+
+            transcript.value = ""
 
             Log.i(
                 tag,
