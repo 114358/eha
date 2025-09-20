@@ -28,16 +28,6 @@ class MainActivity : ComponentActivity() {
             val doctorLanguage = Languages.French
             val patientLanguage = Languages.English
 
-            lifecycleScope.launch {
-                try {
-                    val modelDir = withContext(Dispatchers.IO) {
-                        Traductor.ensureLoaded(application)
-                    }
-                } catch (e: Exception) {
-                    Log.e("MainActivity", "Failed to load model", e)
-                }
-            }
-
             val doctorVM: MainScreenViewModel = viewModel(
                 key = "doctor",
                 factory = MainScreenViewModel.factory(doctorLanguage, patientLanguage, "doctor")
