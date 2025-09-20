@@ -26,29 +26,36 @@ fun ensureModel(
     val suffix = model.url.substringAfterLast('.', "")
     val fileName = "${model.fileName}.${suffix}"
     val dstFile = File(cacheDir, fileName)
+    val extractedDir = File(cacheDir, dstFile.nameWithoutExtension)
     Log.d(tag, "${dstFile.absolutePath}")
 
     val needDownload = force || !dstFile.exists()
     if (needDownload) {
-        Log.d(tag, "⏬ Downloading ${model.fileName} …")
+        Log.d(tag, "Downloading ${model.fileName} …")
         downloadFile(model.url, dstFile)
         Log.d(tag, "${model.fileName} saved to ${dstFile.length() / 1_048_576} MB")
 
         Log.d(tag, dstFile.absolutePath)
         if (dstFile.extension == "zip") {
-            Log.d(tag, "📦 Extracting ${dstFile.name} …")
+            Log.d(tag, "Extracting ${dstFile.name} …")
             unzip(dstFile, cacheDir)
 //            dstFile.delete()
             return File(cacheDir, dstFile.nameWithoutExtension)
         }
     } else {
         Log.d(tag, "${model.fileName} already present (${dstFile.length() / 1_048_576} MB)")
+        if (dstFile.extension == "zip") {
+            if (!extractedDir.exists()) {
+                Log.d(tag, "Extracting cached ${dstFile.name} …")
+                unzip(dstFile, cacheDir)
+            }
+            return extractedDir
+        }
     }
 
     return dstFile
 }
 
-/** Simple blocking download via OkHttp. Throws if HTTP not 200. */
 private fun downloadFile(url: String, dest: File) {
     val httpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -94,15 +101,12 @@ private fun unzip(zipFile: File, destDir: File) {
     ZipInputStream(zipFile.inputStream()).use { zis ->
         var entry = zis.nextEntry
         while (entry != null) {
-            // Build the path for the current entry
             val outPath = File(destDir, entry.name)
 
             if (entry.isDirectory) {
                 outPath.mkdirs()
             } else {
-                // Ensure parent dirs exist
                 outPath.parentFile?.mkdirs()
-                // Stream copy the entry’s bytes to disk
                 Files.copy(zis, outPath.toPath(), REPLACE_EXISTING)
             }
             zis.closeEntry()
