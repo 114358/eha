@@ -142,7 +142,6 @@ fun Item(viewModel: MainScreenViewModel, modifier: Modifier = Modifier, title: S
 fun MainScreen(doctorVM: MainScreenViewModel, patientVM: MainScreenViewModel) {
     val context = LocalContext.current
 
-    // 1) Load the LLM once when this screen appears
     var llmReady by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         try {
