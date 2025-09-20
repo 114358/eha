@@ -15,21 +15,13 @@ import kotlinx.coroutines.withContext
 
 
 object LLMModels {
-    val Gemma3_1b_Q4 = ModelInfo(
-        fileName = "gemma-3-1b-it-Q4_K_M.gguf",
-        url = "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-Q4_K_M.gguf"
-    )
     val Gemma3_4b_Q8 = ModelInfo(
         fileName = "gemma-3-4b-it-Q8_0.gguf",
         url = "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q8_0.gguf"
     )
-    val Gemma3n_4b_Q8 = ModelInfo(
-        fileName = "gemma-3n-E2B-it-Q8_0.gguf",
-        url = "https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/main/gemma-3n-E2B-it-Q8_0.gguf"
-    )
-    val Gwen3_4b_Q8 = ModelInfo(
-        fileName = "Qwen3-4B-Q8_0.gguf",
-        url = "https://huggingface.co/ggml-org/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q8_0.gguf"
+    val Tower_Plus_2B_Q3 = ModelInfo(
+        fileName = "tower-Plus-2B.Q8_0M.gguf",
+        url = "https://huggingface.co/DZgas/Tower-Plus-2B-GGUF/resolve/main/Tower-Plus-2B.Q8_0.gguf",
     )
 }
 
@@ -47,8 +39,8 @@ object Traductor {
             if (ready) return
 
             Log.d(tag, "Loading LLM...")
-//            val weights = ensureModel(ctx.cacheDir, LLMModels.Gemma3n_4b_Q8)
-            val weights = ensureModel(ctx.cacheDir, LLMModels.Gemma3_4b_Q8)
+//            val weights = ensureModel(ctx.cacheDir, LLMModels.Gemma3_4b_Q8)
+            val weights = ensureModel(ctx.cacheDir, LLMModels.Tower_Plus_2B_Q3)
             Log.d(tag, "$weights")
             require(weights.exists()) { "Model file missing" }
             require(weights.length() > 0L) { "Model file is empty" }
