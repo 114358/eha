@@ -1,5 +1,7 @@
 package com.r114358.rosette
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.CircularProgressIndicator
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.withContext
@@ -160,7 +162,21 @@ fun MainScreen(doctorVM: MainScreenViewModel, patientVM: MainScreenViewModel) {
     LaunchedEffect(patientLang) { doctorVM.setTTS(patientLang) }
 
     Row(Modifier.fillMaxSize()) {
+        if (!llmReady) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 8.dp),
+//                contentAlignment = Alignment.TopCenter
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator()
+                    Spacer(Modifier.width(12.dp))
+                    Text("Loading LLM…", fontSize = 14.sp)
+                }
+            }
+        }
         Item(doctorVM, Modifier.weight(1f), "Doctor")
-        Item(patientVM, Modifier.weight(1f), title = "Patient")
+        Item(patientVM, Modifier.weight(1f), "Patient")
     }
 }
