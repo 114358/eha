@@ -15,6 +15,10 @@ import kotlinx.coroutines.withContext
 
 
 object LLMModels {
+    val Gemma3_4b_Q4 = ModelInfo(
+        fileName = " gemma-3-4b-it-Q4_K_M.gguf",
+        url = "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf"
+    )
     val Gemma3_4b_Q8 = ModelInfo(
         fileName = "gemma-3-4b-it-Q8_0.gguf",
         url = "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q8_0.gguf"
@@ -39,8 +43,8 @@ object Traductor {
             if (ready) return
 
             Log.d(tag, "Loading LLM...")
-//            val weights = ensureModel(ctx.cacheDir, LLMModels.Gemma3_4b_Q8)
-            val weights = ensureModel(ctx.cacheDir, LLMModels.Tower_Plus_2B_Q3)
+            val weights = ensureModel(ctx.cacheDir, LLMModels.Gemma3_4b_Q4)
+//            val weights = ensureModel(ctx.cacheDir, LLMModels.Tower_Plus_2B_Q3)
             Log.d(tag, "$weights")
             require(weights.exists()) { "Model file missing" }
             require(weights.length() > 0L) { "Model file is empty" }
@@ -78,6 +82,7 @@ ${to.label}:
             .substringBefore("<bos>")
             .substringBefore("<end_of_turn>")
             .substringBefore("<|eot_id|>")
+            .replace(">", "")
             .trim()
 
         Log.d("llm", "output: ${answer}")
