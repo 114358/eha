@@ -69,7 +69,7 @@ ${to.label}:
 <start_of_turn>model
 """.trimIndent()
 
-        Log.d("llm", chat)
+        Log.d("rosette-llm", chat)
 
         val answer = buildString {
             llama.send(chat, false)
