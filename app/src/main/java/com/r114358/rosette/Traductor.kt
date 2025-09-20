@@ -60,10 +60,12 @@ object Traductor {
         ensureLoaded(ctx)
 
         val chat = """
-<bos><start_of_turn>user
-Translate everything I say from ${from.label} into ${to.label}.
-Answer ONLY with the translation, no extra text.
-$text<end_of_turn>
+<start_of_turn>user
+Translate the following ${from.label} source text to ${to.label}.
+Reply with the translation only. No explanations. No extra text.
+${from.label}: ${text} 
+${to.label}: 
+<end_of_turn>
 <start_of_turn>model
 """.trimIndent()
 
