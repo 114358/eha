@@ -78,9 +78,13 @@ $text<end_of_turn>
         Log.d("llm", chat)
 
         val answer = buildString {
-            llama.send(chat, true)
+            llama.send(chat, false)
                 .collect { append(it) }
-        }.trim()
+        }.substringBefore("<eos>")
+            .substringBefore("<bos>")
+            .substringBefore("<end_of_turn>")
+            .substringBefore("<|eot_id|>")
+            .trim()
 
         Log.d("llm", "output: ${answer}")
 

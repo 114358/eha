@@ -37,7 +37,7 @@ class LLamaAndroid {
         }
     }.asCoroutineDispatcher()
 
-    private val nlen: Int = 64
+    private val nlen: Int = 256
 
     private external fun log_to_android()
     private external fun load_model(filename: String): Long
@@ -117,21 +117,37 @@ class LLamaAndroid {
         }
     }
 
-    fun send(message: String, formatChat: Boolean = false): Flow<String> = flow {
+    fun send(message: String, formatChat: Boolean = false, nLen: Int = 1024): Flow<String> = flow {
+        val stopStrings = listOf("<eos>", "<bos>", "<end_of_turn>", "<|eot_id|>")
+
         when (val state = threadLocalState.get()) {
             is State.Loaded -> {
-                val ncur = IntVar(completion_init(state.context, state.batch, message, formatChat, nlen))
-                while (ncur.value <= nlen) {
-                    val str = completion_loop(state.context, state.batch, state.sampler, nlen, ncur)
-                    if (str == null) {
-                        break
-                    }
-                    emit(str)
+                val ncur = IntVar(completion_init(state.context, state.batch, message, formatChat, nLen))
+                val buf = StringBuilder()
+                while (ncur.value <= nLen) {
+                    val chunk = completion_loop(state.context, state.batch, state.sampler, nLen, ncur) ?: break
+                    buf.append(chunk)
+                    emit(chunk)
+                    // stop as soon as we *see* any stop marker
+                    if (stopStrings.any { buf.contains(it) }) break
                 }
                 kv_cache_clear(state.context)
             }
             else -> {}
         }
+//            is State.Loaded -> {
+//                val ncur = IntVar(completion_init(state.context, state.batch, message, formatChat, nLen))
+//                while (ncur.value <= nlen) {
+//                    val str = completion_loop(state.context, state.batch, state.sampler, nlen, ncur)
+//                    if (str == null) {
+//                        break
+//                    }
+//                    emit(str)
+//                }
+//                kv_cache_clear(state.context)
+//            }
+//            else -> {}
+//        }
     }.flowOn(runLoop)
 
     /**
