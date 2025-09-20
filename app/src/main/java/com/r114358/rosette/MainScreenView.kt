@@ -1,7 +1,10 @@
 package com.r114358.rosette
 
+import android.os.Handler
+import android.os.Looper
 import android.app.Application
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -102,6 +105,8 @@ class MainScreenViewModel(
     var ttsLang: StateFlow<Language> = _ttsLang.asStateFlow()
     var translated = mutableStateOf("")
 
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     val tag = "rosette-$viewTag"
 
     init {
@@ -131,20 +136,38 @@ class MainScreenViewModel(
     }
 
     fun setTTS(language: Language) {
-        _ttsLang.value = language
+            _ttsLang.value = language
 
-        ttsService = TextToSpeech(application) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val res = ttsService?.setLanguage(language.locale)
-                if (res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.e(tag, "TTS language is not supported (${language.locale})")
-                } else {
+            ttsService = TextToSpeech(application) { status ->
+                if (status == TextToSpeech.SUCCESS) {
+                    val res = ttsService?.setLanguage(language.locale)
+                    if (res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e(tag, "TTS language is not supported: '${language.locale}'")
+                        return@TextToSpeech
+                    }
+
+                    // Listen for start/done/error/stop
+                    ttsService?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                        override fun onStart(utteranceId: String?) {
+                            mainHandler.post { isPlaying = true }
+                        }
+                        override fun onDone(utteranceId: String?) {
+                            mainHandler.post { isPlaying = false }
+                        }
+                        override fun onError(utteranceId: String?) {
+                            mainHandler.post { isPlaying = false }
+                        }
+                        // API 24+
+                        override fun onStop(utteranceId: String?, interrupted: Boolean) {
+                            mainHandler.post { isPlaying = false }
+                        }
+                    })
+
                     Log.d(tag, "set TTS to ${language.label}")
+                } else {
+                    Log.e(tag, "TTS init failed $status")
                 }
-            } else {
-                Log.e(tag, "TTS init failed $status")
             }
-        }
         Log.d(tag, "target language: ${language.label}")
     }
 
