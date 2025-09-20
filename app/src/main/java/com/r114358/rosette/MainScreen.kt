@@ -49,7 +49,7 @@ fun Item(viewModel: MainScreenViewModel, modifier: Modifier = Modifier, title: S
 
     Column(
         modifier = modifier
-            .border(2.dp, Color.Gray, RectangleShape)
+//            .border(2.dp, Color.Gray, RectangleShape)
             .padding(16.dp)
             .fillMaxSize()
             .wrapContentHeight(),
